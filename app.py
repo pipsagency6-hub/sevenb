@@ -346,6 +346,10 @@ def auto_refresh_loop():
         time.sleep(REFRESH_INTERVAL)
 
 # --- AUTH ROUTES ---
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:

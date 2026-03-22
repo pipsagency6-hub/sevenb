@@ -99,6 +99,45 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .flash{padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;margin:8px 0}
 .flash-error{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
 .flash-info{background:var(--orange-glow);color:var(--orange);border:1px solid rgba(249,115,22,0.2)}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+    .header{padding:10px 14px;flex-wrap:wrap;gap:8px}
+    .logo-mark{width:28px;height:28px;font-size:12px;border-radius:6px}
+    .logo h1{font-size:15px}
+    .header-right{gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .header-meta{font-size:10px}
+    .user-badge{padding:4px 8px;font-size:10px}
+    .btn-sm{padding:4px 10px;font-size:10px}
+    .page-nav{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .page-link{padding:10px 14px;font-size:11px;white-space:nowrap}
+    .kpi-bar{padding:10px 14px;gap:8px}
+    .kpi{padding:10px 12px;min-width:120px}
+    .kpi-value{font-size:16px}
+    .nav-tabs{padding:0 14px}
+    .nav-tab{padding:9px 12px;font-size:10px}
+    .content{padding:14px}
+    .section-title{font-size:14px}
+    .grid-2{grid-template-columns:1fr}
+    .grid-3{grid-template-columns:1fr}
+    .card-header{padding:8px 12px;flex-wrap:wrap;gap:6px}
+    .card-title{font-size:12px}
+    .slider-slide{height:180px}
+    .slider-controls{padding:5px;gap:6px}
+    .slider-label{font-size:9px;min-width:70px}
+    .toggle-row{gap:4px}
+    .toggle-btn{padding:4px 10px;font-size:10px}
+    .flash-messages{padding:0 14px}
+}
+@media(max-width:400px){
+    .header-right{width:100%;justify-content:space-between}
+    .logo h1{font-size:14px}
+    .page-link{padding:8px 10px;font-size:10px}
+    .kpi{min-width:100px;padding:8px 10px}
+    .kpi-value{font-size:14px}
+    .kpi-label{font-size:8px}
+    .content{padding:10px}
+}
 {% block extra_style %}{% endblock %}
 </style>
 </head>
@@ -149,8 +188,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 {% block content %}{% endblock %}
 
 <script>
-const PL={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',font:{color:'#555',size:10,family:'Inter'},margin:{l:45,r:15,t:25,b:35},xaxis:{gridcolor:'#1a1a1a',linecolor:'#1a1a1a',zerolinecolor:'#1a1a1a'},yaxis:{gridcolor:'#1a1a1a',linecolor:'#1a1a1a',zerolinecolor:'#1a1a1a'},showlegend:false};
-const CHART_ORANGE='#f97316',CHART_ORANGE_FILL='rgba(249,115,22,0.1)';
+const PL={paper_bgcolor:'#fff',plot_bgcolor:'#fff',font:{color:'#222',size:10,family:'Inter'},margin:{l:45,r:15,t:25,b:35},xaxis:{gridcolor:'#e5e5e5',linecolor:'#ccc',zerolinecolor:'#ccc'},yaxis:{gridcolor:'#e5e5e5',linecolor:'#ccc',zerolinecolor:'#ccc'},showlegend:false};
+const CHART_ORANGE='#111',CHART_ORANGE_FILL='rgba(0,0,0,0.06)';
 
 let refreshCountdown=3600,countdownInterval;
 function resetCountdown(){

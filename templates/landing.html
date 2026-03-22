@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SevenB — Economic Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--o:#f97316;--o2:#ea580c;--bg:#000;--g:#22c55e;--r:#ef4444;--y:#eab308}
+body{font-family:'Inter',sans-serif;background:#000;color:#e5e5e5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--o);color:#000}
+a{color:var(--o);text-decoration:none}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);border-bottom:1px solid #111}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-mark{width:34px;height:34px;background:var(--o);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#000}
+.nav-name{font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.nav-name span{color:var(--o)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:13px;color:#666;font-weight:500;transition:.2s}
+.nav-links a:hover{color:#fff}
+.nav-cta{background:var(--o)!important;color:#000!important;padding:8px 20px;border-radius:8px;font-weight:700;font-size:13px}
+.nav-cta:hover{background:var(--o2)!important}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;padding:120px 40px 80px;overflow:hidden}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(249,115,22,0.08) 0%,transparent 60%)}
+.hero-grid{position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
+.hero-content{position:relative;z-index:2;max-width:900px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:24px;font-size:12px;color:var(--o);font-weight:600;margin-bottom:28px}
+.hero-badge .pulse{width:6px;height:6px;background:var(--o);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:72px;font-weight:900;line-height:1;letter-spacing:-3px;color:#fff;margin-bottom:20px}
+.hero h1 span{background:linear-gradient(135deg,var(--o),#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:18px;color:#666;line-height:1.6;max-width:560px;margin:0 auto 36px}
+.hero-btns{display:flex;gap:14px;justify-content:center}
+.btn-hero{padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:.2s;font-family:'Inter'}
+.btn-hero-primary{background:var(--o);color:#000}
+.btn-hero-primary:hover{background:#fff;transform:translateY(-2px);box-shadow:0 20px 40px rgba(249,115,22,0.3)}
+.btn-hero-ghost{background:transparent;color:#fff;border:1px solid #222}
+.btn-hero-ghost:hover{border-color:var(--o);color:var(--o)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px}
+.hero-stat{text-align:center}
+.hero-stat-val{font-size:36px;font-weight:800;color:#fff;letter-spacing:-1px}
+.hero-stat-val span{color:var(--o)}
+.hero-stat-lbl{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+/* 3D CARDS SECTION */
+.section{padding:100px 40px;max-width:1200px;margin:0 auto}
+.section-label{font-size:11px;color:var(--o);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:12px}
+.section-title{font-size:44px;font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
+.section-sub{font-size:16px;color:#555;max-width:500px;line-height:1.5;margin-bottom:50px}
+
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat-card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:16px;padding:32px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1);transform:perspective(800px) rotateY(0) rotateX(0)}
+.feat-card:hover{border-color:var(--o);transform:perspective(800px) rotateY(-2deg) rotateX(2deg) translateY(-8px);box-shadow:0 30px 60px rgba(249,115,22,0.1)}
+.feat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--o),transparent);opacity:0;transition:.4s}
+.feat-card:hover::after{opacity:1}
+.feat-icon{width:48px;height:48px;background:rgba(249,115,22,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+.feat-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
+.feat-desc{font-size:13px;color:#555;line-height:1.6}
+
+/* 3D DASHBOARD PREVIEW */
+.preview-section{padding:80px 40px;overflow:hidden}
+.preview-wrapper{max-width:1100px;margin:0 auto;perspective:1200px}
+.preview-frame{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:20px;overflow:hidden;transform:rotateX(8deg) rotateY(-3deg) scale(0.95);transition:transform .6s cubic-bezier(.4,0,.2,1);box-shadow:0 60px 120px rgba(0,0,0,0.8),0 0 80px rgba(249,115,22,0.05)}
+.preview-frame:hover{transform:rotateX(2deg) rotateY(0deg) scale(1)}
+.preview-bar{padding:10px 16px;background:#111;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:6px}
+.preview-dot{width:10px;height:10px;border-radius:50%}
+.preview-body{padding:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.prev-card{background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:16px;min-height:160px}
+.prev-card-title{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.prev-card-val{font-size:28px;font-weight:800;letter-spacing:-1px}
+
+/* 3D BIAS BARS */
+.bias-section{padding:80px 40px;max-width:1100px;margin:0 auto}
+.bias-3d-grid{display:flex;gap:16px;justify-content:center;align-items:flex-end;height:300px;perspective:600px}
+.bias-3d-bar{width:80px;border-radius:10px 10px 0 0;position:relative;transform:rotateY(-8deg);transition:all .5s;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:12px}
+.bias-3d-bar:hover{transform:rotateY(0deg) scale(1.05);box-shadow:0 -20px 40px rgba(249,115,22,0.2)}
+.bias-3d-bar::before{content:'';position:absolute;top:0;right:-12px;width:12px;height:100%;background:rgba(0,0,0,0.3);transform:skewY(-35deg);transform-origin:top left;border-radius:0 4px 4px 0}
+.bias-3d-label{font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;font-weight:700;writing-mode:vertical-rl;transform:rotate(180deg);margin-bottom:8px}
+.bias-3d-val{font-size:14px;font-weight:800;color:#fff}
+
+/* SLIDES / MARQUEE */
+.marquee-section{padding:40px 0;border-top:1px solid #111;border-bottom:1px solid #111;overflow:hidden}
+.marquee-track{display:flex;gap:40px;animation:scroll 20s linear infinite;width:max-content}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.marquee-item{display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:14px;color:#333;font-weight:600}
+.marquee-dot{width:6px;height:6px;background:var(--o);border-radius:50%}
+
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.review-card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:16px;padding:28px;transition:all .3s}
+.review-card:hover{border-color:#222;transform:translateY(-4px)}
+.review-stars{color:var(--o);font-size:14px;margin-bottom:14px;letter-spacing:2px}
+.review-text{font-size:13px;color:#888;line-height:1.6;margin-bottom:18px;font-style:italic}
+.review-author{display:flex;align-items:center;gap:12px}
+.review-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#000}
+.review-name{font-size:13px;font-weight:600;color:#fff}
+.review-role{font-size:11px;color:#555}
+
+/* FAQ */
+.faq-list{max-width:700px}
+.faq-item{border-bottom:1px solid #151515;padding:20px 0;cursor:pointer}
+.faq-q{font-size:15px;font-weight:600;color:#ccc;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.faq-q:hover{color:var(--o)}
+.faq-arrow{font-size:18px;color:#333;transition:transform .3s}
+.faq-item.open .faq-arrow{transform:rotate(45deg);color:var(--o)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:13px;color:#555;line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding-top:12px}
+
+/* CTA */
+.cta-section{padding:120px 40px;text-align:center;position:relative}
+.cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(249,115,22,0.06),transparent 70%);pointer-events:none}
+.cta-title{font-size:48px;font-weight:900;color:#fff;letter-spacing:-2px;margin-bottom:16px}
+.cta-sub{font-size:16px;color:#555;margin-bottom:36px}
+
+/* FOOTER */
+footer{padding:40px;border-top:1px solid #111;text-align:center;font-size:12px;color:#333}
+
+@media(max-width:768px){
+    .hero h1{font-size:40px;letter-spacing:-1.5px}
+    .features-grid,.reviews-grid{grid-template-columns:1fr}
+    .preview-body{grid-template-columns:1fr}
+    .bias-3d-grid{flex-wrap:wrap}
+    .hero-stats{flex-wrap:wrap;gap:20px}
+    .section-title{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-logo">
+        <div class="nav-mark">7B</div>
+        <div class="nav-name">seven<span>B</span></div>
+    </div>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#preview">Dashboard</a>
+        <a href="#bias">Bias Engine</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#faq">FAQ</a>
+        <a href="/login" class="nav-cta">Launch App</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+        <div class="hero-badge"><div class="pulse"></div>Live Economic Intelligence</div>
+        <h1>Decode the <span>Economy.</span><br>Predict the Markets.</h1>
+        <p>Real-time macro data, AI-driven bias scoring, and 15-year backtested signals — all in one platform built for serious traders.</p>
+        <div class="hero-btns">
+            <a href="/login" class="btn-hero btn-hero-primary">Start Trading Smarter</a>
+            <a href="#features" class="btn-hero btn-hero-ghost">See How It Works</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-val">25<span>+</span></div><div class="hero-stat-lbl">Economic Indicators</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">16</div><div class="hero-stat-lbl">Markets Tracked</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">15<span>Y</span></div><div class="hero-stat-lbl">Backtest Depth</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">62<span>%</span></div><div class="hero-stat-lbl">Top Accuracy</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+    <div class="marquee-track">
+        <div class="marquee-item"><div class="marquee-dot"></div>S&P 500</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>NASDAQ</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Gold</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>WTI Crude</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>EUR/USD</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>USD/JPY</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>10Y Treasury</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>VIX</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Dow Jones</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Brent Crude</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>GBP/USD</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Credit Spreads</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>S&P 500</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>NASDAQ</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Gold</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>WTI Crude</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>EUR/USD</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>USD/JPY</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>10Y Treasury</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>VIX</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Dow Jones</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Brent Crude</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>GBP/USD</div>
+        <div class="marquee-item"><div class="marquee-dot"></div>Credit Spreads</div>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+    <div class="section-label">Features</div>
+    <div class="section-title">Everything you need<br>to read the market.</div>
+    <div class="section-sub">Built on Federal Reserve data. No guesswork.</div>
+    <div class="features-grid">
+        <div class="feat-card">
+            <div class="feat-icon">&#9678;</div>
+            <div class="feat-title">Live FRED Data</div>
+            <div class="feat-desc">25+ economic indicators auto-refreshed hourly from the Federal Reserve. GDP, CPI, employment, housing — all in real-time.</div>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">&#9733;</div>
+            <div class="feat-title">Bias Scoring Engine</div>
+            <div class="feat-desc">Proprietary algorithm scores each market from -100 to +100 based on weighted economic drivers. Bullish, bearish, or neutral — quantified.</div>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">&#8646;</div>
+            <div class="feat-title">Multi-Timeframe Views</div>
+            <div class="feat-desc">Weekly, monthly, quarterly analysis. Slide between distribution histograms, MoM changes, and net movements per indicator.</div>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">&#9881;</div>
+            <div class="feat-title">15-Year Backtest</div>
+            <div class="feat-desc">Every signal backtested across 2,300+ data points over 15 years. Win rates, equity curves, and scatter analysis per market.</div>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">&#9875;</div>
+            <div class="feat-title">Market Correlation</div>
+            <div class="feat-desc">See exactly which economic indicators drive each market — and by how much. Full transparency on the model's logic.</div>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">&#9888;</div>
+            <div class="feat-title">Auto Calculations</div>
+            <div class="feat-desc">YoY%, MoM%, net changes, trend scores — all computed automatically. No spreadsheets. No manual work. Just insights.</div>
+        </div>
+    </div>
+</section>
+
+<!-- 3D DASHBOARD PREVIEW -->
+<section class="preview-section" id="preview">
+    <div class="section" style="padding-bottom:30px">
+        <div class="section-label">Dashboard</div>
+        <div class="section-title">Pro-grade analytics.<br>Zero complexity.</div>
+    </div>
+    <div class="preview-wrapper">
+        <div class="preview-frame">
+            <div class="preview-bar">
+                <div class="preview-dot" style="background:#ef4444"></div>
+                <div class="preview-dot" style="background:#eab308"></div>
+                <div class="preview-dot" style="background:#22c55e"></div>
+                <span style="font-size:11px;color:#333;margin-left:12px">sevenB — Economic Intelligence</span>
+            </div>
+            <div class="preview-body">
+                <div class="prev-card">
+                    <div class="prev-card-title">Real GDP</div>
+                    <div class="prev-card-val" style="color:var(--g)">24,065.96</div>
+                    <div style="font-size:10px;color:#555;margin-top:4px">YoY: +2.0%</div>
+                    <div style="margin-top:12px;height:60px;background:linear-gradient(90deg,rgba(249,115,22,0.05),rgba(249,115,22,0.2));border-radius:6px;position:relative;overflow:hidden"><div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(0deg,rgba(249,115,22,0.3),transparent);border-radius:0 0 6px 6px"></div></div>
+                </div>
+                <div class="prev-card">
+                    <div class="prev-card-title">S&P 500 Bias</div>
+                    <div class="prev-card-val" style="color:var(--g)">LEAN BULL</div>
+                    <div style="font-size:10px;color:#555;margin-top:4px">Score: +18.8</div>
+                    <div style="margin-top:12px;height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden"><div style="width:59%;height:100%;background:var(--g);border-radius:4px"></div></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px"><span style="color:#555">1w: <span style="color:var(--r)">-1.9%</span></span><span style="color:#555">1m: <span style="color:var(--r)">-5.2%</span></span><span style="color:#555">3m: <span style="color:var(--r)">-3.2%</span></span></div>
+                </div>
+                <div class="prev-card">
+                    <div class="prev-card-title">NASDAQ Backtest</div>
+                    <div class="prev-card-val" style="color:var(--o)">62.1%</div>
+                    <div style="font-size:10px;color:#555;margin-top:4px">Accuracy — 174 signals</div>
+                    <div style="margin-top:12px;display:flex;gap:3px;align-items:flex-end;height:50px">
+                        <div style="flex:1;background:var(--g);border-radius:3px 3px 0 0;height:70%"></div>
+                        <div style="flex:1;background:var(--g);border-radius:3px 3px 0 0;height:55%"></div>
+                        <div style="flex:1;background:var(--y);border-radius:3px 3px 0 0;height:40%"></div>
+                        <div style="flex:1;background:var(--r);border-radius:3px 3px 0 0;height:25%"></div>
+                        <div style="flex:1;background:var(--r);border-radius:3px 3px 0 0;height:15%"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:8px;color:#333;margin-top:4px"><span>BULL</span><span>LEAN</span><span>NEUT</span><span>LEAN</span><span>BEAR</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3D BIAS BARS -->
+<section class="bias-section" id="bias">
+    <div style="text-align:center;margin-bottom:50px">
+        <div class="section-label">Bias Engine</div>
+        <div class="section-title">Market bias at a glance.</div>
+        <div class="section-sub" style="margin:12px auto 0">Real-time scores powered by 25+ economic indicators.</div>
+    </div>
+    <div class="bias-3d-grid">
+        <div class="bias-3d-bar" style="height:220px;background:linear-gradient(0deg,#166534,var(--g))"><div class="bias-3d-label">BRENT</div><div class="bias-3d-val">+33</div></div>
+        <div class="bias-3d-bar" style="height:200px;background:linear-gradient(0deg,#166534,var(--g))"><div class="bias-3d-label">WTI OIL</div><div class="bias-3d-val">+29</div></div>
+        <div class="bias-3d-bar" style="height:175px;background:linear-gradient(0deg,#166534,var(--g))"><div class="bias-3d-label">DOW</div><div class="bias-3d-val">+25</div></div>
+        <div class="bias-3d-bar" style="height:160px;background:linear-gradient(0deg,#14532d,#4ade80)"><div class="bias-3d-label">USD/JPY</div><div class="bias-3d-val">+20</div></div>
+        <div class="bias-3d-bar" style="height:150px;background:linear-gradient(0deg,#14532d,#4ade80)"><div class="bias-3d-label">S&P 500</div><div class="bias-3d-val">+19</div></div>
+        <div class="bias-3d-bar" style="height:130px;background:linear-gradient(0deg,#713f12,var(--y))"><div class="bias-3d-label">EUR/USD</div><div class="bias-3d-val">0</div></div>
+        <div class="bias-3d-bar" style="height:110px;background:linear-gradient(0deg,#7f1d1d,var(--r))"><div class="bias-3d-label">VIX</div><div class="bias-3d-val">-33</div></div>
+        <div class="bias-3d-bar" style="height:120px;background:linear-gradient(0deg,#7f1d1d,var(--r))"><div class="bias-3d-label">HY SPRD</div><div class="bias-3d-val">-39</div></div>
+    </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section" id="reviews">
+    <div class="section-label">Reviews</div>
+    <div class="section-title">Trusted by traders.</div>
+    <div class="section-sub">What our users say about SevenB.</div>
+    <div class="reviews-grid">
+        <div class="review-card">
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="review-text">"Finally a platform that connects macro data to actual trade ideas. The bias scoring on NASDAQ is incredibly useful for timing entries."</div>
+            <div class="review-author">
+                <div class="review-avatar" style="background:linear-gradient(135deg,#f97316,#fbbf24)">M</div>
+                <div><div class="review-name">Marcus T.</div><div class="review-role">Swing Trader — New York</div></div>
+            </div>
+        </div>
+        <div class="review-card">
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="review-text">"The 15-year backtest gave me confidence the model actually works. 62% accuracy on NASDAQ with a clear equity curve. Data doesn't lie."</div>
+            <div class="review-author">
+                <div class="review-avatar" style="background:linear-gradient(135deg,#22c55e,#4ade80)">S</div>
+                <div><div class="review-name">Sarah K.</div><div class="review-role">Quant Analyst — London</div></div>
+            </div>
+        </div>
+        <div class="review-card">
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+            <div class="review-text">"I used to spend hours reading FRED data manually. SevenB does everything automatically and shows me the bias before the market opens."</div>
+            <div class="review-author">
+                <div class="review-avatar" style="background:linear-gradient(135deg,#a855f7,#c084fc)">R</div>
+                <div><div class="review-name">Rami A.</div><div class="review-role">Day Trader — Dubai</div></div>
+            </div>
+        </div>
+        <div class="review-card">
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="review-text">"The correlation breakdown is gold. Seeing exactly which indicators drive oil prices changed how I trade commodities entirely."</div>
+            <div class="review-author">
+                <div class="review-avatar" style="background:linear-gradient(135deg,#ef4444,#f87171)">J</div>
+                <div><div class="review-name">Julia M.</div><div class="review-role">Commodities Trader — Singapore</div></div>
+            </div>
+        </div>
+        <div class="review-card">
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="review-text">"Clean UI, fast data, no BS. The MoM slider histograms are a brilliant way to see momentum shifts. Worth every penny."</div>
+            <div class="review-author">
+                <div class="review-avatar" style="background:linear-gradient(135deg,#3b82f6,#60a5fa)">D</div>
+                <div><div class="review-name">Daniel R.</div><div class="review-role">Portfolio Manager — Toronto</div></div>
+            </div>
+        </div>
+        <div class="review-card">
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+            <div class="review-text">"I love the admin panel — I share the platform with my team and can control exactly who has access. The weekly/monthly/quarterly views are perfect."</div>
+            <div class="review-author">
+                <div class="review-avatar" style="background:linear-gradient(135deg,#eab308,#fbbf24)">L</div>
+                <div><div class="review-name">Liam P.</div><div class="review-role">Fund Manager — Sydney</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+    <div class="section-label">FAQ</div>
+    <div class="section-title">Questions? Answered.</div>
+    <div class="section-sub"></div>
+    <div class="faq-list">
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Where does the data come from?<span class="faq-arrow">+</span></div>
+            <div class="faq-a">All economic data is sourced directly from FRED (Federal Reserve Economic Data) — the same data used by central banks, hedge funds, and institutional traders. It's free, reliable, and updated automatically every hour.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">How does the bias scoring work?<span class="faq-arrow">+</span></div>
+            <div class="faq-a">Each market has a set of economic drivers (GDP, employment, inflation, etc.) with assigned weights. The model tracks the 3-month momentum of each indicator, applies the weights, and normalizes the result to a -100 to +100 score. Positive = bullish, negative = bearish.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">What does the backtest show?<span class="faq-arrow">+</span></div>
+            <div class="faq-a">The backtest replays the bias model month-by-month over the past 15 years. For each signal, it measures actual 1-month and 3-month forward returns. You see accuracy rates, win rates per bias bucket, equity curves, score distributions, and scatter plots.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">How are the calculations automated?<span class="faq-arrow">+</span></div>
+            <div class="faq-a">SevenB auto-fetches raw data from FRED every hour, computes YoY%, MoM%, net changes, trend scores, bias signals, and backtest metrics — all server-side. When new data is released (CPI, NFP, GDP, etc.), the dashboard updates within the next refresh cycle.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Which markets are covered?<span class="faq-arrow">+</span></div>
+            <div class="faq-a">16 markets across equities (S&P 500, NASDAQ, Dow), bonds (2Y, 10Y, 30Y Treasury), forex (EUR/USD, USD/JPY, GBP/USD, DXY), commodities (WTI, Brent, Gold), volatility (VIX), and credit (HY Spreads).</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q">Can I share access with my team?<span class="faq-arrow">+</span></div>
+            <div class="faq-a">Yes. The admin panel lets you create user accounts, monitor login activity, and disable or remove users at any time. Full control over who sees your data.</div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="section-label">Get Started</div>
+    <div class="cta-title">Ready to trade with<br>an edge?</div>
+    <div class="cta-sub">Join traders who use macro intelligence to stay ahead.</div>
+    <a href="/login" class="btn-hero btn-hero-primary" style="display:inline-block">Launch SevenB</a>
+</section>
+
+<footer>
+    <div class="nav-logo" style="justify-content:center;margin-bottom:16px">
+        <div class="nav-mark" style="width:28px;height:28px;font-size:12px">7B</div>
+        <div class="nav-name" style="font-size:15px">seven<span>B</span></div>
+    </div>
+    SevenB &copy; 2024 — Economic Intelligence Platform
+</footer>
+
+</body>
+</html>
