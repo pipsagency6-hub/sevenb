@@ -345,6 +345,11 @@ def auto_refresh_loop():
         except Exception as e: print(f"Refresh error: {e}")
         time.sleep(REFRESH_INTERVAL)
 
+# --- HEALTH CHECK ---
+@app.route('/healthz')
+def healthz():
+    return 'ok', 200
+
 # --- AUTH ROUTES ---
 @app.route('/landing')
 def landing():
