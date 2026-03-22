@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}SevenB - Backtest 15Y{% endblock %}
+{% block extra_style %}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:20px}
+.ov-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s}
+.ov-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.ov-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ov-name{font-size:14px;font-weight:600;letter-spacing:-.2px}.ov-cat{font-size:9px;color:var(--text3);text-transform:uppercase;font-weight:600}
+.ov-stats{display:flex;gap:15px;margin-top:6px}
+.ov-stat{text-align:center}.ov-stat-val{font-size:16px;font-weight:700;letter-spacing:-.5px}.ov-stat-lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.acc-bar{width:100%;height:4px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden}
+.acc-fill{height:100%;border-radius:2px}
+.detail-sec{display:none}.detail-sec.active{display:block}
+.detail-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.detail-ttl{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.detail-x{cursor:pointer;color:var(--text3);font-size:20px;padding:4px 8px}.detail-x:hover{color:var(--red)}
+.bs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.bs-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.bs-label{font-size:11px;font-weight:700;margin-bottom:6px}
+.bs-row{display:flex;justify-content:space-between;font-size:10px;padding:2px 0}.bs-key{color:var(--text3)}
+.charts-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.ch-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.ch-title{padding:8px 12px;font-size:11px;font-weight:600;border-bottom:1px solid var(--border);letter-spacing:-.2px}
+.ch-area{height:270px}
+.full-ch{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.full-ch-area{height:280px}
+.sum-row{display:flex;gap:10px;padding:14px 28px;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--border)}
+.sum-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-width:130px;text-align:center;flex-shrink:0}
+.sum-val{font-size:24px;font-weight:700;letter-spacing:-.5px}.sum-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;margin-top:3px}
+{% endblock %}
+
+{% block content %}
+<div class="sum-row" id="summaryRow"></div>
+<div class="content">
+    <div class="section-title">Model Performance by Market</div>
+    <div class="ov-grid" id="overviewGrid"></div>
+    <div class="detail-sec" id="detailSection">
+        <div class="detail-hdr"><div class="detail-ttl" id="detailTitle"></div><div class="detail-x" onclick="closeDetail()">&times;</div></div>
+        <div class="bs-grid" id="biasStats"></div>
+        <div class="charts-2">
+            <div class="ch-box"><div class="ch-title">Bullish Signals — 1M Fwd Returns</div><div class="ch-area" id="histBull"></div></div>
+            <div class="ch-box"><div class="ch-title">Bearish Signals — 1M Fwd Returns</div><div class="ch-area" id="histBear"></div></div>
+        </div>
+        <div class="charts-2">
+            <div class="ch-box"><div class="ch-title">Bias Score Distribution (15Y)</div><div class="ch-area" id="histScores"></div></div>
+            <div class="ch-box"><div class="ch-title">Avg 3M Return by Bias Bucket</div><div class="ch-area" id="histBuckets"></div></div>
+        </div>
+        <div class="full-ch"><div class="ch-title">Equity Curve — Model vs Buy & Hold</div><div class="full-ch-area" id="equityCurve"></div></div>
+        <div class="charts-2">
+            <div class="ch-box"><div class="ch-title">Bias Score Timeline</div><div class="ch-area" id="scoreTimeline"></div></div>
+            <div class="ch-box"><div class="ch-title">Score vs 1M Forward Return</div><div class="ch-area" id="scatterPlot"></div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+let btData={};
+async function loadAllData(){
+    try{const r=await fetch('/api/backtest');const j=await r.json();
+        if(j.loading||!Object.keys(j.data).length){document.querySelector('.loading-text').textContent='Computing backtest...';setTimeout(loadAllData,5000);return;}
+        btData=j.data;document.getElementById('lastRefresh').textContent=j.last_refresh;
+        document.getElementById('loadingOverlay').style.display='none';
+        buildSummary();buildOverview();resetCountdown();
+    }catch(e){setTimeout(loadAllData,3000);}
+}
+
+function buildSummary(){
+    const ms=Object.values(btData);
+    const avg=ms.reduce((s,m)=>s+m.accuracy,0)/ms.length;
+    const total=ms.reduce((s,m)=>s+m.total_signals,0);
+    const best=ms.reduce((a,b)=>a.accuracy>b.accuracy?a:b);
+    const avgEq=ms.reduce((s,m)=>s+m.equity_curve[m.equity_curve.length-1],0)/ms.length;
+    document.getElementById('summaryRow').innerHTML=`
+        <div class="sum-card"><div class="sum-val" style="color:var(--orange)">${ms.length}</div><div class="sum-lbl">Markets</div></div>
+        <div class="sum-card"><div class="sum-val" style="color:#38bdf8">${total.toLocaleString()}</div><div class="sum-lbl">Signals</div></div>
+        <div class="sum-card"><div class="sum-val" style="color:${avg>55?'var(--green)':'var(--red)'}">${avg.toFixed(1)}%</div><div class="sum-lbl">Avg Accuracy</div></div>
+        <div class="sum-card"><div class="sum-val" style="color:var(--green)">${best.name}</div><div class="sum-lbl">Best (${best.accuracy}%)</div></div>`;
+}
+
+function buildOverview(){
+    const sorted=Object.entries(btData).sort((a,b)=>b[1].accuracy-a[1].accuracy);
+    document.getElementById('overviewGrid').innerHTML=sorted.map(([sid,m])=>{
+        const eq=m.equity_curve[m.equity_curve.length-1];
+        const ac=m.accuracy>60?'var(--green)':m.accuracy>50?'var(--orange)':'var(--red)';
+        return`<div class="ov-card" onclick="showDetail('${sid}')"><div class="ov-header"><div class="ov-name">${m.name}</div><div class="ov-cat">${m.cat}</div></div><div class="ov-stats"><div class="ov-stat"><div class="ov-stat-val" style="color:${ac}">${m.accuracy}%</div><div class="ov-stat-lbl">Accuracy</div></div><div class="ov-stat"><div class="ov-stat-val" style="color:#38bdf8">${m.total_signals}</div><div class="ov-stat-lbl">Signals</div></div><div class="ov-stat"><div class="ov-stat-val" style="color:${eq>100?'var(--green)':'var(--red)'}">${eq.toFixed(0)}</div><div class="ov-stat-lbl">Equity</div></div></div><div class="acc-bar"><div class="acc-fill" style="width:${m.accuracy}%;background:${ac}"></div></div></div>`;
+    }).join('');
+}
+
+function showDetail(sid){
+    const m=btData[sid];if(!m)return;
+    document.getElementById('detailSection').classList.add('active');
+    document.getElementById('detailTitle').textContent=m.name+' — 15Y Backtest';
+    const bO=['BULLISH','LEAN BULL','NEUTRAL','LEAN BEAR','BEARISH'];
+    const bC={BULLISH:'var(--green)','LEAN BULL':'var(--green)',NEUTRAL:'var(--yellow)','LEAN BEAR':'var(--red)',BEARISH:'var(--red)'};
+    document.getElementById('biasStats').innerHTML=bO.map(b=>{const s=m.stats[b];
+        if(!s)return`<div class="bs-card"><div class="bs-label" style="color:${bC[b]}">${b}</div><div style="color:var(--text3);font-size:10px">No signals</div></div>`;
+        return`<div class="bs-card"><div class="bs-label" style="color:${bC[b]}">${b}</div><div class="bs-row"><span class="bs-key">Count</span><span>${s.count}</span></div><div class="bs-row"><span class="bs-key">Avg 1M</span><span style="color:${s.avg_1m>0?'var(--green)':'var(--red)'}">${s.avg_1m>0?'+':''}${s.avg_1m}%</span></div><div class="bs-row"><span class="bs-key">Avg 3M</span><span style="color:${s.avg_3m>0?'var(--green)':'var(--red)'}">${s.avg_3m>0?'+':''}${s.avg_3m}%</span></div><div class="bs-row"><span class="bs-key">Win 1M</span><span style="color:${s.win_1m>50?'var(--green)':'var(--red)'}">${s.win_1m}%</span></div><div class="bs-row"><span class="bs-key">Win 3M</span><span style="color:${s.win_3m>50?'var(--green)':'var(--red)'}">${s.win_3m}%</span></div></div>`;
+    }).join('');
+
+    const bullR=(m.stats['BULLISH']?.returns_1m||[]).concat(m.stats['LEAN BULL']?.returns_1m||[]);
+    const bearR=(m.stats['BEARISH']?.returns_1m||[]).concat(m.stats['LEAN BEAR']?.returns_1m||[]);
+    Plotly.newPlot('histBull',[{x:bullR,type:'histogram',nbinsx:30,marker:{color:'rgba(34,197,94,0.5)',line:{color:'#22c55e',width:.5}}}],{...PL,xaxis:{...PL.xaxis,title:'1M Return %'},shapes:[{type:'line',x0:0,x1:0,y0:0,y1:1,yref:'paper',line:{color:'#222',dash:'dash',width:1}}]},{responsive:true,displayModeBar:false});
+    Plotly.newPlot('histBear',[{x:bearR,type:'histogram',nbinsx:30,marker:{color:'rgba(239,68,68,0.5)',line:{color:'#ef4444',width:.5}}}],{...PL,xaxis:{...PL.xaxis,title:'1M Return %'},shapes:[{type:'line',x0:0,x1:0,y0:0,y1:1,yref:'paper',line:{color:'#222',dash:'dash',width:1}}]},{responsive:true,displayModeBar:false});
+    Plotly.newPlot('histScores',[{x:m.scores,type:'histogram',nbinsx:40,marker:{color:'rgba(249,115,22,0.5)',line:{color:'#f97316',width:.5}}}],{...PL,xaxis:{...PL.xaxis,title:'Bias Score'},shapes:[{type:'line',x0:0,x1:0,y0:0,y1:1,yref:'paper',line:{color:'#222',dash:'dash',width:1}}]},{responsive:true,displayModeBar:false});
+
+    const buckets=[],avg3=[],barC=[];bO.forEach(b=>{if(m.stats[b]){buckets.push(b);avg3.push(m.stats[b].avg_3m);barC.push(bC[b]);}});
+    Plotly.newPlot('histBuckets',[{x:buckets,y:avg3,type:'bar',marker:{color:['#22c55e','#22c55e','#eab308','#ef4444','#ef4444'].slice(0,buckets.length)}}],{...PL,yaxis:{...PL.yaxis,title:'Avg 3M %'}},{responsive:true,displayModeBar:false});
+
+    const eqD=m.dates.slice(0,m.equity_curve.length);const fp=m.signals[0]?.price||1;const bh=m.signals.map(s=>s.price/fp*100);
+    Plotly.newPlot('equityCurve',[{x:eqD,y:m.equity_curve.slice(0,eqD.length),type:'scatter',mode:'lines',line:{color:'#f97316',width:2},name:'Model'},{x:m.dates,y:bh,type:'scatter',mode:'lines',line:{color:'#333',width:1,dash:'dash'},name:'Buy & Hold'}],{...PL,showlegend:true,legend:{font:{color:'#555',size:10},x:.02,y:.98}},{responsive:true,displayModeBar:false});
+
+    Plotly.newPlot('scoreTimeline',[{x:m.dates,y:m.scores,type:'bar',marker:{color:m.scores.map(s=>s>25?'#22c55e':s>5?'rgba(34,197,94,0.5)':s<-25?'#ef4444':s<-5?'rgba(239,68,68,0.5)':'#eab308')}}],{...PL,yaxis:{...PL.yaxis,title:'Score'}},{responsive:true,displayModeBar:false});
+
+    const sc=[],sr=[],sCol=[];m.signals.forEach(s=>{if(s.fwd_1m!==null){sc.push(s.score);sr.push(s.fwd_1m);sCol.push(s.fwd_1m>0?'#22c55e':'#ef4444');}});
+    Plotly.newPlot('scatterPlot',[{x:sc,y:sr,type:'scatter',mode:'markers',marker:{color:sCol,size:4,opacity:.5}}],{...PL,xaxis:{...PL.xaxis,title:'Bias Score'},yaxis:{...PL.yaxis,title:'1M Fwd %'}},{responsive:true,displayModeBar:false});
+
+    window.scrollTo({top:document.getElementById('detailSection').offsetTop-80,behavior:'smooth'});
+}
+function closeDetail(){document.getElementById('detailSection').classList.remove('active');}
+loadAllData();
+{% endblock %}

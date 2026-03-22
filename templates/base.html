@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}SevenB{% endblock %}</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#000;--bg2:#0a0a0a;--bg3:#111;--bg4:#161616;--border:#1a1a1a;--border2:#222;--orange:#f97316;--orange2:#ea580c;--orange-glow:rgba(249,115,22,0.15);--text:#e5e5e5;--text2:#999;--text3:#555;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--green-bg:rgba(34,197,94,0.12);--red-bg:rgba(239,68,68,0.12);--yellow-bg:rgba(234,179,8,0.12)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+::selection{background:var(--orange);color:#000}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--orange)}
+
+.header{background:var(--bg);padding:14px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#000}
+.logo h1{font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.logo h1 span{color:var(--orange)}
+.header-right{display:flex;align-items:center;gap:14px}
+.header-meta{font-size:11px;color:var(--text3)}
+.header-meta strong{color:var(--text2)}
+.user-badge{display:flex;align-items:center;gap:6px;padding:5px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--text2)}
+.user-badge .dot{width:6px;height:6px;background:var(--green);border-radius:50%}
+.btn{padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--orange);color:#000}
+.btn-primary:hover{background:var(--orange2);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange)}
+.btn-sm{padding:5px 12px;font-size:11px}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-danger:hover{background:var(--red);color:#fff}
+
+.page-nav{display:flex;gap:0;background:var(--bg);border-bottom:1px solid var(--border)}
+.page-link{padding:11px 22px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;border-bottom:2px solid transparent;letter-spacing:0.3px;text-transform:uppercase;transition:all .15s}
+.page-link:hover{color:var(--text)}
+.page-link.active{color:var(--orange);border-bottom-color:var(--orange)}
+
+.kpi-bar{display:flex;gap:10px;padding:14px 28px;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--border)}
+.kpi{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-width:145px;flex-shrink:0;transition:border-color .15s}
+.kpi:hover{border-color:var(--orange)}
+.kpi-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;font-weight:600}
+.kpi-value{font-size:20px;font-weight:700;margin-top:4px;letter-spacing:-0.5px}
+.kpi-date{font-size:9px;color:var(--text3);margin-top:3px}
+.kpi-up{color:var(--green)}.kpi-down{color:var(--red)}.kpi-neutral{color:var(--yellow)}
+
+.nav-tabs{display:flex;gap:0;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto}
+.nav-tab{padding:10px 18px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;white-space:nowrap;text-transform:uppercase;letter-spacing:0.3px;transition:all .15s}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+
+.content{padding:22px 28px}
+.section-title{font-size:15px;font-weight:700;margin-bottom:14px;color:#fff;letter-spacing:-0.3px}
+
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card-header{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:600;letter-spacing:-0.2px}
+.card-badge{font-size:10px;padding:3px 10px;border-radius:20px;background:var(--orange-glow);color:var(--orange);font-weight:600}
+
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,1fr));gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:16px}
+.spinner{width:36px;height:36px;border:2px solid var(--border);border-top:2px solid var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--text3);font-weight:500}
+
+.bias-BULLISH{background:var(--green-bg);color:var(--green)}
+.bias-LEAN-BULL{background:rgba(34,197,94,0.08);color:var(--green)}
+.bias-BEARISH{background:var(--red-bg);color:var(--red)}
+.bias-LEAN-BEAR{background:rgba(239,68,68,0.08);color:var(--red)}
+.bias-NEUTRAL{background:var(--yellow-bg);color:var(--yellow)}
+
+.slider-container{position:relative;overflow:hidden}
+.slider-track{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.slider-slide{min-width:100%;height:220px}
+.slider-controls{display:flex;justify-content:center;align-items:center;gap:10px;padding:6px;background:var(--bg2);border-top:1px solid var(--border)}
+.slider-btn{background:var(--bg4);border:1px solid var(--border);color:var(--text3);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.slider-btn:hover{background:var(--orange);color:#000;border-color:var(--orange)}
+.slider-label{font-size:10px;color:var(--text3);min-width:100px;text-align:center;font-weight:500}
+.slider-dots{display:flex;gap:4px}
+.slider-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);cursor:pointer;transition:background .15s}
+.slider-dot.active{background:var(--orange)}
+
+.toggle-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.toggle-btn{padding:5px 14px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);font-weight:500;transition:all .15s}
+.toggle-btn.active{background:var(--orange);color:#000;border-color:var(--orange)}
+.toggle-btn:hover{border-color:var(--orange)}
+
+.category-section{margin-bottom:22px;display:none}
+.category-section.active{display:block}
+
+.flash-messages{padding:0 28px}
+.flash{padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;margin:8px 0}
+.flash-error{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.flash-info{background:var(--orange-glow);color:var(--orange);border:1px solid rgba(249,115,22,0.2)}
+{% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+{% block loading %}
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading SevenB...</div>
+</div>
+{% endblock %}
+
+<div class="header">
+    <div class="logo">
+        <div class="logo-mark">7B</div>
+        <h1>seven<span>B</span></h1>
+    </div>
+    <div class="header-right">
+        <div class="header-meta">
+            <strong id="countdown">--:--</strong> &middot; <span id="lastRefresh">{{ last_refresh or '...' }}</span>
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="user-badge"><div class="dot"></div>{{ current_user.username }}</div>
+        {% if current_user.is_admin %}
+        <a href="/admin" class="btn btn-ghost btn-sm">Admin</a>
+        {% endif %}
+        <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+        {% endif %}
+        <button class="btn btn-primary btn-sm" id="btnRefresh" onclick="manualRefresh()">Refresh</button>
+    </div>
+</div>
+
+<div class="page-nav">
+    <a href="/" class="page-link {% if request.path == '/' %}active{% endif %}">Dashboard</a>
+    <a href="/bias" class="page-link {% if request.path == '/bias' %}active{% endif %}">Bias</a>
+    <a href="/backtest" class="page-link {% if request.path == '/backtest' %}active{% endif %}">Backtest</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-messages">
+{% for cat, msg in messages %}
+<div class="flash flash-{{ cat }}">{{ msg }}</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<script>
+const PL={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',font:{color:'#555',size:10,family:'Inter'},margin:{l:45,r:15,t:25,b:35},xaxis:{gridcolor:'#1a1a1a',linecolor:'#1a1a1a',zerolinecolor:'#1a1a1a'},yaxis:{gridcolor:'#1a1a1a',linecolor:'#1a1a1a',zerolinecolor:'#1a1a1a'},showlegend:false};
+const CHART_ORANGE='#f97316',CHART_ORANGE_FILL='rgba(249,115,22,0.1)';
+
+let refreshCountdown=3600,countdownInterval;
+function resetCountdown(){
+    refreshCountdown=3600;
+    if(countdownInterval)clearInterval(countdownInterval);
+    countdownInterval=setInterval(()=>{
+        refreshCountdown--;
+        const m=Math.floor(refreshCountdown/60),s=refreshCountdown%60;
+        document.getElementById('countdown').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+        if(refreshCountdown<=0&&typeof loadAllData==='function')loadAllData();
+    },1000);
+}
+async function manualRefresh(){
+    const btn=document.getElementById('btnRefresh');
+    btn.classList.add('loading');btn.textContent='...';
+    await fetch('/api/refresh',{method:'POST'});
+    setTimeout(async()=>{if(typeof loadAllData==='function')await loadAllData();btn.textContent='Refresh';},20000);
+}
+{% block script %}{% endblock %}
+</script>
+</body>
+</html>

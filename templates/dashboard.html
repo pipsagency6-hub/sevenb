@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}SevenB - Dashboard{% endblock %}
+{% block content %}
+<div class="kpi-bar" id="kpiBar"></div>
+<div class="nav-tabs" id="navTabs"></div>
+<div class="content" id="dashboard"></div>
+{% endblock %}
+{% block script %}
+const KPI_IDS=['GDPC1','FEDFUNDS','UNRATE','CPIAUCSL','PCEPILFE','UMCSENT','M2SL','DGS10'];
+const CAT_COLORS={'GDP':'#f97316','Housing':'#ef4444','Central Bank':'#a855f7','M2':'#eab308','Government':'#f87171','Consumption':'#fb923c','Labor':'#22c55e','Inflation':'#ec4899','PCE':'#38bdf8','Industrial Production':'#818cf8','Current Account':'#a78bfa'};
+let allData={},currentTab='All';
+
+async function loadAllData(){
+    try{
+        const r=await fetch('/api/all');const j=await r.json();
+        if(j.loading||!Object.keys(j.data).length){document.querySelector('.loading-text').textContent='Fetching from FRED...';setTimeout(loadAllData,5000);return;}
+        allData=j.data;document.getElementById('lastRefresh').textContent=j.last_refresh;
+        document.getElementById('loadingOverlay').style.display='none';
+        buildKPIs();buildTabs();buildDashboard();resetCountdown();
+    }catch(e){setTimeout(loadAllData,3000);}
+}
+
+function buildKPIs(){
+    const bar=document.getElementById('kpiBar');bar.innerHTML='';
+    KPI_IDS.forEach(sid=>{const d=allData[sid];if(!d)return;
+        const yoy=d.yoy.filter(v=>v!==null),ly=yoy.length?yoy[yoy.length-1]:null;
+        let cls='kpi-neutral';if(ly!==null)cls=ly>0?'kpi-up':'kpi-down';
+        if(sid==='UNRATE')cls=ly>0?'kpi-down':'kpi-up';
+        let v=d.latest_value.toLocaleString('en-US',{maximumFractionDigits:2});
+        if(d.info.unit==='%')v+='%';
+        bar.innerHTML+=`<div class="kpi"><div class="kpi-label">${d.info.name}</div><div class="kpi-value ${cls}">${v}</div><div class="kpi-date">${d.latest_date}${ly!==null?' | YoY:'+ly.toFixed(1)+'%':''}</div></div>`;
+    });
+}
+
+function buildTabs(){
+    const cats=['All'];Object.values(allData).forEach(d=>{if(!cats.includes(d.info.cat))cats.push(d.info.cat);});
+    document.getElementById('navTabs').innerHTML=cats.map(c=>`<div class="nav-tab ${c===currentTab?'active':''}" onclick="switchTab('${c}')">${c}</div>`).join('');
+}
+
+function switchTab(tab){
+    currentTab=tab;
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.textContent===tab));
+    document.querySelectorAll('.category-section').forEach(s=>s.classList.toggle('active',tab==='All'||s.dataset.cat===tab));
+}
+
+function buildDashboard(){
+    const dash=document.getElementById('dashboard');dash.innerHTML='';
+    const cats={};Object.entries(allData).forEach(([sid,d])=>{if(!cats[d.info.cat])cats[d.info.cat]=[];cats[d.info.cat].push({sid,...d});});
+    Object.entries(cats).forEach(([cat,series])=>{
+        const sec=document.createElement('div');sec.className='category-section active';sec.dataset.cat=cat;
+        let h=`<div class="section-title">${cat}</div><div class="toggle-row"><div class="toggle-btn active" onclick="toggleView('${cat}','level',this)">Level</div><div class="toggle-btn" onclick="toggleView('${cat}','yoy',this)">YoY %</div></div><div class="grid-2">`;
+        series.forEach(s=>{const fv=s.latest_value.toLocaleString('en-US',{maximumFractionDigits:2});
+            h+=`<div class="card" id="card-${s.sid}"><div class="card-header"><div class="card-title">${s.info.name}</div><div class="card-badge">${fv} ${s.info.unit}</div></div><div style="height:250px" id="ts-${s.sid}"></div><div class="slider-container" id="slider-${s.sid}"><div class="slider-track" id="track-${s.sid}"><div class="slider-slide" id="hist-${s.sid}"></div><div class="slider-slide" id="mom-${s.sid}"></div><div class="slider-slide" id="net-${s.sid}"></div></div></div><div class="slider-controls"><button class="slider-btn" onclick="slideChart('${s.sid}',-1)">&#9664;</button><div class="slider-dots" id="dots-${s.sid}"><div class="slider-dot active" onclick="goSlide('${s.sid}',0)"></div><div class="slider-dot" onclick="goSlide('${s.sid}',1)"></div><div class="slider-dot" onclick="goSlide('${s.sid}',2)"></div></div><span class="slider-label" id="slabel-${s.sid}">Distribution</span><button class="slider-btn" onclick="slideChart('${s.sid}',1)">&#9654;</button></div></div>`;
+        });
+        h+='</div>';sec.innerHTML=h;dash.appendChild(sec);
+        setTimeout(()=>series.forEach(s=>renderAll(s.sid,cat,'level')),50);
+    });
+    switchTab(currentTab);
+}
+
+const slideIdx={},slideLabels=['Distribution','MoM % Change','Net Change'];
+function slideChart(sid,dir){if(!slideIdx[sid])slideIdx[sid]=0;slideIdx[sid]=Math.max(0,Math.min(2,slideIdx[sid]+dir));applySlide(sid);}
+function goSlide(sid,idx){slideIdx[sid]=idx;applySlide(sid);}
+function applySlide(sid){const i=slideIdx[sid]||0;const t=document.getElementById('track-'+sid);if(t)t.style.transform=`translateX(-${i*100}%)`;document.querySelectorAll(`#dots-${sid} .slider-dot`).forEach((d,j)=>d.classList.toggle('active',j===i));const l=document.getElementById('slabel-'+sid);if(l)l.textContent=slideLabels[i];}
+
+function renderAll(sid,cat,mode){
+    const d=allData[sid];if(!d)return;const color=CHART_ORANGE;
+    let values=mode==='yoy'?d.yoy:d.values,yLabel=mode==='yoy'?'YoY %':d.info.unit;
+    const pairs=d.dates.map((dt,i)=>[dt,values[i]]).filter(p=>p[1]!==null);
+    const fD=pairs.map(p=>p[0]),fV=pairs.map(p=>p[1]);if(!fD.length)return;
+
+    Plotly.newPlot('ts-'+sid,[{x:fD,y:fV,type:'scatter',mode:'lines',line:{color,width:1.5},fill:'tozeroy',fillcolor:CHART_ORANGE_FILL}],
+        {...PL,yaxis:{...PL.yaxis,title:yLabel},...(mode==='yoy'?{shapes:[{type:'line',x0:fD[0],x1:fD[fD.length-1],y0:0,y1:0,line:{color:'#222',dash:'dash',width:1}}]}:{})},{responsive:true,displayModeBar:false});
+
+    const latest=fV[fV.length-1];
+    Plotly.newPlot('hist-'+sid,[{x:fV,type:'histogram',nbinsx:40,marker:{color:'rgba(249,115,22,0.5)',line:{color:CHART_ORANGE,width:0.5}}}],
+        {...PL,xaxis:{...PL.xaxis,title:yLabel},shapes:[{type:'line',x0:latest,x1:latest,y0:0,y1:1,yref:'paper',line:{color:'#ef4444',dash:'dash',width:2}}],annotations:[{x:latest,y:1,yref:'paper',text:`Now: ${latest.toFixed(2)}`,showarrow:true,arrowhead:0,ax:35,ay:-20,font:{color:'#ef4444',size:9}}]},{responsive:true,displayModeBar:false});
+
+    const mc=d.monthly_changes;
+    if(mc&&mc.dates){
+        Plotly.newPlot('mom-'+sid,[{x:mc.dates,y:mc.mom_pct,type:'bar',marker:{color:mc.mom_pct.map(v=>v>=0?'#22c55e':'#ef4444')}}],{...PL,yaxis:{...PL.yaxis,title:'MoM %'},shapes:[{type:'line',x0:mc.dates[0],x1:mc.dates[mc.dates.length-1],y0:0,y1:0,line:{color:'#1a1a1a',width:1}}]},{responsive:true,displayModeBar:false});
+        Plotly.newPlot('net-'+sid,[{x:mc.dates,y:mc.net_chg,type:'bar',marker:{color:mc.net_chg.map(v=>v>=0?'#f97316':'#a855f7')}}],{...PL,yaxis:{...PL.yaxis,title:d.info.unit},shapes:[{type:'line',x0:mc.dates[0],x1:mc.dates[mc.dates.length-1],y0:0,y1:0,line:{color:'#1a1a1a',width:1}}]},{responsive:true,displayModeBar:false});
+    }
+}
+
+function toggleView(cat,mode,btn){btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');btn.closest('.category-section').querySelectorAll('.card').forEach(c=>renderAll(c.id.replace('card-',''),cat,mode));}
+loadAllData();
+{% endblock %}

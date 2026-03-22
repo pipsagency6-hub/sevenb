@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SevenB - Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#000;color:#e5e5e5;min-height:100vh;display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased}
+.login-container{width:100%;max-width:400px;padding:20px}
+.login-logo{text-align:center;margin-bottom:40px}
+.logo-mark{width:56px;height:56px;background:#f97316;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:#000;margin-bottom:16px}
+.login-logo h1{font-size:28px;font-weight:700;color:#fff;letter-spacing:-1px}
+.login-logo h1 span{color:#f97316}
+.login-logo p{font-size:13px;color:#555;margin-top:6px}
+.login-card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:16px;padding:32px}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+.form-input{width:100%;padding:12px 16px;background:#111;border:1px solid #222;border-radius:10px;color:#e5e5e5;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:#f97316}
+.form-input::placeholder{color:#333}
+.btn-login{width:100%;padding:13px;background:#f97316;color:#000;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;letter-spacing:-0.2px}
+.btn-login:hover{background:#ea580c;transform:translateY(-1px)}
+.flash{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px;background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+.footer{text-align:center;margin-top:24px;font-size:11px;color:#333}
+</style>
+</head>
+<body>
+<div class="login-container">
+    <div class="login-logo">
+        <div class="logo-mark">7B</div>
+        <h1>seven<span>B</span></h1>
+        <p>Economic Intelligence Platform</p>
+    </div>
+    <div class="login-card">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for cat, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-input" placeholder="Enter username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-input" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn-login">Sign In</button>
+        </form>
+    </div>
+    <div class="footer">SevenB &copy; 2024</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}SevenB - Bias{% endblock %}
+{% block extra_style %}
+.tf-tabs{display:flex;gap:0;padding:0 28px;background:var(--bg);border-bottom:1px solid var(--border)}
+.tf-tab{padding:10px 20px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;text-transform:uppercase;letter-spacing:.3px}
+.tf-tab:hover{color:var(--text)}.tf-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.summary-bar{display:flex;gap:10px;padding:14px 28px;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--border)}
+.sum-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-width:100px;text-align:center;flex-shrink:0}
+.sum-count{font-size:24px;font-weight:700}.sum-label{font-size:9px;color:var(--text3);text-transform:uppercase;margin-top:3px}
+.bias-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:22px}
+.bias-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s}
+.bias-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.bias-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.bias-name{font-size:14px;font-weight:600;letter-spacing:-.2px}.bias-cat{font-size:9px;color:var(--text3);text-transform:uppercase;font-weight:600;letter-spacing:.5px}
+.bias-score-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.bias-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.score-bar-bg{flex:1;height:4px;background:var(--border);border-radius:2px;position:relative;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px;position:absolute;top:0}
+.score-num{font-size:18px;font-weight:700;min-width:50px;text-align:right;letter-spacing:-.5px}
+.market-changes{display:flex;gap:12px;margin-top:8px}.chg-item{font-size:10px}.chg-label{color:var(--text3)}.chg-pos{color:var(--green)}.chg-neg{color:var(--red)}
+.detail-panel{background:var(--bg3);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;display:none}
+.detail-panel.active{display:block}
+.detail-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.detail-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.detail-close{cursor:pointer;color:var(--text3);font-size:20px}.detail-close:hover{color:var(--red)}
+.detail-body{padding:16px 18px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.detail-chart{height:280px}
+.drivers-table{width:100%;border-collapse:collapse;margin-top:12px}
+.drivers-table th{text-align:left;font-size:9px;color:var(--text3);text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--border);letter-spacing:.5px}
+.drivers-table td{padding:6px 8px;font-size:11px;border-bottom:1px solid #111}
+.trend-up{color:var(--green)}.trend-down{color:var(--red)}.trend-flat{color:var(--yellow)}
+.forecast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.fc-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.fc-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.fc-name{font-size:12px;font-weight:600}.fc-badge{font-size:9px;padding:3px 8px;border-radius:16px;font-weight:700}
+.fc-chart{height:240px}
+{% endblock %}
+
+{% block content %}
+<div class="tf-tabs" id="tfTabs">
+    <div class="tf-tab active" onclick="switchTF('weekly',this)">Weekly</div>
+    <div class="tf-tab" onclick="switchTF('monthly',this)">Monthly</div>
+    <div class="tf-tab" onclick="switchTF('quarterly',this)">Quarterly</div>
+</div>
+<div class="summary-bar" id="summaryBar"></div>
+<div class="content">
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header"><div class="detail-title" id="detailTitle"></div><div class="detail-close" onclick="closeDetail()">&times;</div></div>
+        <div class="detail-body">
+            <div class="detail-grid"><div class="detail-chart" id="detailChart"></div><div class="detail-chart" id="detailBiasChart"></div></div>
+            <table class="drivers-table" id="driversTable"><thead><tr><th>Indicator</th><th>Trend</th><th>Weight</th><th>Score</th><th>Reason</th></tr></thead><tbody id="driversBody"></tbody></table>
+        </div>
+    </div>
+    <div class="section-title">Market Bias Overview</div>
+    <div class="bias-grid" id="biasGrid"></div>
+    <div class="section-title">Forecast Charts</div>
+    <div class="forecast-grid" id="forecastGrid"></div>
+</div>
+{% endblock %}
+
+{% block script %}
+let biasData={},marketData={},currentTF='weekly';
+const tfP={weekly:{days:90,label:'3 Months'},monthly:{days:365,label:'12 Months'},quarterly:{days:365*3,label:'3 Years'}};
+
+async function loadAllData(){
+    try{
+        const[br,mr]=await Promise.all([fetch('/api/bias'),fetch('/api/markets')]);
+        const[bj,mj]=await Promise.all([br.json(),mr.json()]);
+        if(bj.loading||mj.loading){document.querySelector('.loading-text').textContent='Loading from FRED...';setTimeout(loadAllData,5000);return;}
+        biasData=bj.biases;marketData=mj.data;
+        document.getElementById('lastRefresh').textContent=bj.last_refresh;
+        document.getElementById('loadingOverlay').style.display='none';
+        buildAll();resetCountdown();
+    }catch(e){setTimeout(loadAllData,3000);}
+}
+
+function buildAll(){buildSummary();buildBiasGrid();buildForecasts();}
+
+function buildSummary(){
+    const c={BULLISH:0,'LEAN BULL':0,NEUTRAL:0,'LEAN BEAR':0,BEARISH:0};
+    Object.values(biasData).forEach(b=>c[b.bias]++);
+    const colors={BULLISH:'var(--green)','LEAN BULL':'var(--green)',NEUTRAL:'var(--yellow)','LEAN BEAR':'var(--red)',BEARISH:'var(--red)'};
+    document.getElementById('summaryBar').innerHTML=Object.entries(c).map(([k,v])=>`<div class="sum-item"><div class="sum-count" style="color:${colors[k]}">${v}</div><div class="sum-label">${k}</div></div>`).join('');
+}
+
+function buildBiasGrid(){
+    let html='';
+    Object.entries(biasData).forEach(([sid,b])=>{
+        const cls=b.bias.replace(' ','-');
+        const sc=b.score>0?'var(--green)':b.score<0?'var(--red)':'var(--yellow)';
+        const bL=b.score>=0?'50%':`${50+b.score/2}%`,bW=`${Math.abs(b.score)/2}%`;
+        let ch='';
+        if(b.market&&b.market['1w_pct']!==undefined){['1w','1m','3m'].forEach(p=>{if(b.market[p+'_pct']!==null){const c=b.market[p+'_pct']>=0?'chg-pos':'chg-neg';ch+=`<div class="chg-item"><span class="chg-label">${p}:</span> <span class="${c}">${b.market[p+'_pct']>=0?'+':''}${b.market[p+'_pct']}%</span></div>`;}});}
+        html+=`<div class="bias-card" onclick="showDetail('${sid}')"><div class="bias-card-header"><div class="bias-name">${b.name}</div><div class="bias-cat">${b.cat}</div></div><div class="bias-score-row"><div class="bias-badge bias-${cls}">${b.bias}</div><div class="score-bar-bg"><div class="score-bar-fill" style="left:${bL};width:${bW};background:${sc}"></div></div><div class="score-num" style="color:${sc}">${b.score>0?'+':''}${b.score}</div></div><div class="market-changes">${ch}</div></div>`;
+    });
+    document.getElementById('biasGrid').innerHTML=html;
+}
+
+function showDetail(sid){
+    const b=biasData[sid],m=marketData[sid];if(!b)return;
+    document.getElementById('detailTitle').textContent=b.name+' — Bias Analysis';
+    document.getElementById('detailPanel').classList.add('active');
+    document.getElementById('driversBody').innerHTML=b.details.map(d=>{
+        const tc=d.trend==='Rising'?'trend-up':d.trend==='Falling'?'trend-down':'trend-flat';
+        return`<tr><td>${d.indicator}</td><td class="${tc}">${d.trend}</td><td>${d.weight>0?'+':''}${d.weight}</td><td style="color:${d.contribution>0?'var(--green)':d.contribution<0?'var(--red)':'var(--yellow)'}">${d.contribution>0?'+':''}${d.contribution}</td><td style="color:var(--text3)">${d.reason}</td></tr>`;
+    }).join('');
+    if(m){const tf=tfP[currentTF],cut=new Date();cut.setDate(cut.getDate()-tf.days);
+        const pairs=m.dates.map((d,i)=>[d,m.values[i]]).filter(p=>p[1]!==null&&new Date(p[0])>=cut);
+        Plotly.newPlot('detailChart',[{x:pairs.map(p=>p[0]),y:pairs.map(p=>p[1]),type:'scatter',mode:'lines',line:{color:CHART_ORANGE,width:2},fill:'tozeroy',fillcolor:CHART_ORANGE_FILL}],{...PL,title:{text:b.name+' — '+tf.label,font:{size:11,color:'#555'}}},{responsive:true,displayModeBar:false});}
+    const gc=b.score>0?'#22c55e':b.score<0?'#ef4444':'#eab308';
+    Plotly.newPlot('detailBiasChart',[{type:'indicator',mode:'gauge+number',value:b.score,gauge:{axis:{range:[-100,100],tickcolor:'#333'},bar:{color:gc},bgcolor:'#111',steps:[{range:[-100,-25],color:'rgba(239,68,68,0.08)'},{range:[-25,25],color:'rgba(234,179,8,0.06)'},{range:[25,100],color:'rgba(34,197,94,0.08)'}]},number:{font:{color:gc,size:28}}}],{...PL,margin:{l:30,r:30,t:40,b:10}},{responsive:true,displayModeBar:false});
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+function closeDetail(){document.getElementById('detailPanel').classList.remove('active');}
+
+function buildForecasts(){
+    const tf=tfP[currentTF],cut=new Date();cut.setDate(cut.getDate()-tf.days);
+    let html='';
+    Object.entries(marketData).forEach(([sid,m])=>{const b=biasData[sid];const bias=b?b.bias:'N/A';const cls=bias.replace(' ','-');
+        html+=`<div class="fc-card"><div class="fc-header"><div class="fc-name">${m.info.name}</div><div class="fc-badge bias-${cls}">${bias}</div></div><div class="fc-chart" id="fc-${sid}"></div></div>`;
+    });
+    document.getElementById('forecastGrid').innerHTML=html;
+    setTimeout(()=>{Object.entries(marketData).forEach(([sid,m])=>{
+        const b=biasData[sid];const pairs=m.dates.map((d,i)=>[d,m.values[i]]).filter(p=>p[1]!==null&&new Date(p[0])>=cut);
+        if(!pairs.length)return;const color=b&&b.score>0?'#22c55e':b&&b.score<0?'#ef4444':'#f97316';
+        const traces=[{x:pairs.map(p=>p[0]),y:pairs.map(p=>p[1]),type:'scatter',mode:'lines',line:{color,width:1.5},fill:'tozeroy',fillcolor:color+'12'}];
+        const mc=m.monthly_changes;if(mc&&mc.dates)traces.push({x:mc.dates,y:mc.mom_pct,type:'bar',marker:{color:mc.mom_pct.map(v=>v>=0?'rgba(34,197,94,0.4)':'rgba(239,68,68,0.4)')},yaxis:'y2'});
+        Plotly.newPlot('fc-'+sid,traces,{...PL,yaxis:{...PL.yaxis,title:m.info.unit},yaxis2:{overlaying:'y',side:'right',showgrid:false,tickfont:{size:8,color:'#333'}}},{responsive:true,displayModeBar:false});
+    });},100);
+}
+
+function switchTF(tf,btn){currentTF=tf;document.querySelectorAll('.tf-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');buildForecasts();const dp=document.getElementById('detailPanel');if(dp.classList.contains('active')){const t=document.getElementById('detailTitle').textContent;const sid=Object.keys(biasData).find(s=>t.startsWith(biasData[s].name));if(sid)showDetail(sid);}}
+loadAllData();
+{% endblock %}

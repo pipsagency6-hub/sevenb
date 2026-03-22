@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}SevenB - Admin{% endblock %}
+{% block extra_style %}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.admin-card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden}
+.admin-card-header{padding:14px 18px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center}
+.admin-card-title{font-size:14px;font-weight:700;letter-spacing:-0.3px}
+.admin-card-body{padding:16px 18px;max-height:500px;overflow-y:auto}
+.user-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #111}
+.user-row:last-child{border:none}
+.user-info{flex:1}
+.user-name{font-size:13px;font-weight:600}
+.user-meta{font-size:10px;color:#555;margin-top:2px}
+.user-actions{display:flex;gap:6px}
+.status-active{color:#22c55e;font-size:10px;font-weight:600}
+.status-inactive{color:#ef4444;font-size:10px;font-weight:600}
+.log-row{padding:8px 0;border-bottom:1px solid #111;font-size:11px}
+.log-row:last-child{border:none}
+.log-time{color:#555}
+.log-action{font-weight:600}
+.log-login{color:#22c55e}
+.log-logout{color:#eab308}
+.log-failed{color:#ef4444}
+.create-form{display:flex;gap:8px;flex-wrap:wrap}
+.create-input{padding:8px 12px;background:#111;border:1px solid #222;border-radius:8px;color:#e5e5e5;font-size:12px;font-family:'Inter',sans-serif;outline:none;flex:1;min-width:120px}
+.create-input:focus{border-color:#f97316}
+.admin-stats{display:flex;gap:12px;margin-bottom:16px}
+.admin-stat{background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px 18px;flex:1;text-align:center}
+.admin-stat-val{font-size:28px;font-weight:700;color:#f97316}
+.admin-stat-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-top:4px}
+@media(max-width:768px){.admin-grid{grid-template-columns:1fr}}
+{% endblock %}
+
+{% block loading %}<div class="loading-overlay" id="loadingOverlay" style="display:none"></div>{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="section-title" style="margin-top:8px">Admin Panel</div>
+    <div class="admin-stats" id="adminStats"></div>
+
+    <div class="admin-card" style="margin-bottom:16px">
+        <div class="admin-card-header">
+            <div class="admin-card-title">Create User</div>
+        </div>
+        <div class="admin-card-body">
+            <div class="create-form" id="createForm">
+                <input class="create-input" id="newUser" placeholder="Username" required>
+                <input class="create-input" id="newEmail" placeholder="Email">
+                <input class="create-input" id="newPass" type="password" placeholder="Password" required>
+                <button class="btn btn-primary btn-sm" onclick="createUser()">Create</button>
+            </div>
+            <div id="createMsg" style="font-size:11px;margin-top:8px"></div>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">Users</div>
+                <span style="font-size:11px;color:#555" id="userCount"></span>
+            </div>
+            <div class="admin-card-body" id="userList"></div>
+        </div>
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-title">Login Activity</div>
+            </div>
+            <div class="admin-card-body" id="logList"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+async function loadAdmin(){
+    const [ur,lr]=await Promise.all([fetch('/api/admin/users'),fetch('/api/admin/logs')]);
+    const users=await ur.json(), logs=await lr.json();
+
+    const active=users.filter(u=>u.is_active).length;
+    document.getElementById('adminStats').innerHTML=`
+        <div class="admin-stat"><div class="admin-stat-val">${users.length}</div><div class="admin-stat-label">Total Users</div></div>
+        <div class="admin-stat"><div class="admin-stat-val" style="color:#22c55e">${active}</div><div class="admin-stat-label">Active</div></div>
+        <div class="admin-stat"><div class="admin-stat-val" style="color:#ef4444">${users.length-active}</div><div class="admin-stat-label">Disabled</div></div>
+        <div class="admin-stat"><div class="admin-stat-val">${logs.length}</div><div class="admin-stat-label">Log Entries</div></div>`;
+
+    document.getElementById('userCount').textContent=users.length+' users';
+    document.getElementById('userList').innerHTML=users.map(u=>`
+        <div class="user-row">
+            <div class="user-info">
+                <div class="user-name">${u.username} ${u.is_admin?'<span style="color:#f97316;font-size:9px">ADMIN</span>':''}</div>
+                <div class="user-meta">${u.email||'no email'} &middot; Last: ${u.last_login||'never'} &middot; Created: ${u.created_at}</div>
+            </div>
+            <div class="user-actions">
+                <span class="${u.is_active?'status-active':'status-inactive'}">${u.is_active?'ACTIVE':'DISABLED'}</span>
+                <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})">${u.is_active?'Disable':'Enable'}</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id},'${u.username}')">Delete</button>
+            </div>
+        </div>`).join('');
+
+    document.getElementById('logList').innerHTML=logs.map(l=>{
+        const cls=l.action==='login'?'log-login':l.action==='logout'?'log-logout':'log-failed';
+        return`<div class="log-row"><span class="log-time">${l.timestamp}</span> &middot; <strong>${l.username}</strong> &middot; <span class="log-action ${cls}">${l.action}</span> &middot; <span style="color:#333">${l.ip}</span></div>`;
+    }).join('');
+}
+
+async function createUser(){
+    const u=document.getElementById('newUser').value.trim();
+    const e=document.getElementById('newEmail').value.trim();
+    const p=document.getElementById('newPass').value;
+    if(!u||!p){document.getElementById('createMsg').innerHTML='<span style="color:#ef4444">Username & password required</span>';return;}
+    const r=await fetch('/api/admin/user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p})});
+    const j=await r.json();
+    if(r.ok){document.getElementById('createMsg').innerHTML='<span style="color:#22c55e">User created!</span>';document.getElementById('newUser').value='';document.getElementById('newEmail').value='';document.getElementById('newPass').value='';loadAdmin();}
+    else{document.getElementById('createMsg').innerHTML=`<span style="color:#ef4444">${j.error}</span>`;}
+}
+
+async function toggleUser(id){
+    await fetch(`/api/admin/user/${id}/toggle`,{method:'POST'});loadAdmin();
+}
+
+async function deleteUser(id,name){
+    if(!confirm(`Delete user "${name}"?`))return;
+    const r=await fetch(`/api/admin/user/${id}`,{method:'DELETE'});
+    const j=await r.json();
+    if(j.error)alert(j.error);
+    loadAdmin();
+}
+
+loadAdmin();
+{% endblock %}
