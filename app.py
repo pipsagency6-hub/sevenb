@@ -500,10 +500,19 @@ def api_refresh():
 def api_status():
     return jsonify({'last_refresh': LAST_REFRESH, 'eco_count': len(DATA_CACHE), 'market_count': len(MARKET_CACHE), 'bias_count': len(BIAS_CACHE)})
 
+init_db()
+_bg_started = False
+def start_bg():
+    global _bg_started
+    if not _bg_started:
+        _bg_started = True
+        t = threading.Thread(target=auto_refresh_loop, daemon=True)
+        t.start()
+        print("[SevenB] Background refresh started.")
+
+start_bg()
+
 if __name__ == '__main__':
-    init_db()
-    t = threading.Thread(target=auto_refresh_loop, daemon=True)
-    t.start()
     port = int(os.environ.get('PORT', 5050))
     print(f"\n=== SevenB running at http://localhost:{port} ===\n")
     app.run(host='0.0.0.0', port=port, debug=False)
