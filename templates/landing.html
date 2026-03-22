@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--o:#f97316;--o2:#ea580c;--bg:#000;--g:#22c55e;--r:#ef4444;--y:#eab308}
+:root{--o:#a855f7;--o2:#9333ea;--bg:#000;--g:#22c55e;--r:#ef4444;--y:#eab308}
 body{font-family:'Inter',sans-serif;background:#000;color:#e5e5e5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--o);color:#000}
 a{color:var(--o);text-decoration:none}
@@ -26,19 +26,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:fl
 
 /* HERO */
 .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;padding:120px 40px 80px;overflow:hidden}
-.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(249,115,22,0.08) 0%,transparent 60%)}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.08) 0%,transparent 60%)}
 .hero-grid{position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px}
 .hero-content{position:relative;z-index:2;max-width:900px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:24px;font-size:12px;color:var(--o);font-weight:600;margin-bottom:28px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);border-radius:24px;font-size:12px;color:var(--o);font-weight:600;margin-bottom:28px}
 .hero-badge .pulse{width:6px;height:6px;background:var(--o);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .hero h1{font-size:72px;font-weight:900;line-height:1;letter-spacing:-3px;color:#fff;margin-bottom:20px}
-.hero h1 span{background:linear-gradient(135deg,var(--o),#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 span{background:linear-gradient(135deg,var(--o),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero p{font-size:18px;color:#666;line-height:1.6;max-width:560px;margin:0 auto 36px}
 .hero-btns{display:flex;gap:14px;justify-content:center}
 .btn-hero{padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:.2s;font-family:'Inter'}
 .btn-hero-primary{background:var(--o);color:#000}
-.btn-hero-primary:hover{background:#fff;transform:translateY(-2px);box-shadow:0 20px 40px rgba(249,115,22,0.3)}
+.btn-hero-primary:hover{background:#fff;transform:translateY(-2px);box-shadow:0 20px 40px rgba(168,85,247,0.3)}
 .btn-hero-ghost{background:transparent;color:#fff;border:1px solid #222}
 .btn-hero-ghost:hover{border-color:var(--o);color:var(--o)}
 .hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px}
@@ -55,17 +55,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:fl
 
 .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .feat-card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:16px;padding:32px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1);transform:perspective(800px) rotateY(0) rotateX(0)}
-.feat-card:hover{border-color:var(--o);transform:perspective(800px) rotateY(-2deg) rotateX(2deg) translateY(-8px);box-shadow:0 30px 60px rgba(249,115,22,0.1)}
+.feat-card:hover{border-color:var(--o);transform:perspective(800px) rotateY(-2deg) rotateX(2deg) translateY(-8px);box-shadow:0 30px 60px rgba(168,85,247,0.1)}
 .feat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--o),transparent);opacity:0;transition:.4s}
 .feat-card:hover::after{opacity:1}
-.feat-icon{width:48px;height:48px;background:rgba(249,115,22,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+.feat-icon{width:48px;height:48px;background:rgba(168,85,247,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
 .feat-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
 .feat-desc{font-size:13px;color:#555;line-height:1.6}
 
 /* 3D DASHBOARD PREVIEW */
 .preview-section{padding:80px 40px;overflow:hidden}
 .preview-wrapper{max-width:1100px;margin:0 auto;perspective:1200px}
-.preview-frame{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:20px;overflow:hidden;transform:rotateX(8deg) rotateY(-3deg) scale(0.95);transition:transform .6s cubic-bezier(.4,0,.2,1);box-shadow:0 60px 120px rgba(0,0,0,0.8),0 0 80px rgba(249,115,22,0.05)}
+.preview-frame{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:20px;overflow:hidden;transform:rotateX(8deg) rotateY(-3deg) scale(0.95);transition:transform .6s cubic-bezier(.4,0,.2,1);box-shadow:0 60px 120px rgba(0,0,0,0.8),0 0 80px rgba(168,85,247,0.05)}
 .preview-frame:hover{transform:rotateX(2deg) rotateY(0deg) scale(1)}
 .preview-bar{padding:10px 16px;background:#111;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:6px}
 .preview-dot{width:10px;height:10px;border-radius:50%}
@@ -78,7 +78,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:fl
 .bias-section{padding:80px 40px;max-width:1100px;margin:0 auto}
 .bias-3d-grid{display:flex;gap:16px;justify-content:center;align-items:flex-end;height:300px;perspective:600px}
 .bias-3d-bar{width:80px;border-radius:10px 10px 0 0;position:relative;transform:rotateY(-8deg);transition:all .5s;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:12px}
-.bias-3d-bar:hover{transform:rotateY(0deg) scale(1.05);box-shadow:0 -20px 40px rgba(249,115,22,0.2)}
+.bias-3d-bar:hover{transform:rotateY(0deg) scale(1.05);box-shadow:0 -20px 40px rgba(168,85,247,0.2)}
 .bias-3d-bar::before{content:'';position:absolute;top:0;right:-12px;width:12px;height:100%;background:rgba(0,0,0,0.3);transform:skewY(-35deg);transform-origin:top left;border-radius:0 4px 4px 0}
 .bias-3d-label{font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;font-weight:700;writing-mode:vertical-rl;transform:rotate(180deg);margin-bottom:8px}
 .bias-3d-val{font-size:14px;font-weight:800;color:#fff}
@@ -113,7 +113,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:fl
 
 /* CTA */
 .cta-section{padding:120px 40px;text-align:center;position:relative}
-.cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(249,115,22,0.06),transparent 70%);pointer-events:none}
+.cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(168,85,247,0.06),transparent 70%);pointer-events:none}
 .cta-title{font-size:48px;font-weight:900;color:#fff;letter-spacing:-2px;margin-bottom:16px}
 .cta-sub{font-size:16px;color:#555;margin-bottom:36px}
 
@@ -256,7 +256,7 @@ footer{padding:40px;border-top:1px solid #111;text-align:center;font-size:12px;c
                     <div class="prev-card-title">Real GDP</div>
                     <div class="prev-card-val" style="color:var(--g)">24,065.96</div>
                     <div style="font-size:10px;color:#555;margin-top:4px">YoY: +2.0%</div>
-                    <div style="margin-top:12px;height:60px;background:linear-gradient(90deg,rgba(249,115,22,0.05),rgba(249,115,22,0.2));border-radius:6px;position:relative;overflow:hidden"><div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(0deg,rgba(249,115,22,0.3),transparent);border-radius:0 0 6px 6px"></div></div>
+                    <div style="margin-top:12px;height:60px;background:linear-gradient(90deg,rgba(168,85,247,0.05),rgba(168,85,247,0.2));border-radius:6px;position:relative;overflow:hidden"><div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(0deg,rgba(168,85,247,0.3),transparent);border-radius:0 0 6px 6px"></div></div>
                 </div>
                 <div class="prev-card">
                     <div class="prev-card-title">S&P 500 Bias</div>
@@ -312,7 +312,7 @@ footer{padding:40px;border-top:1px solid #111;text-align:center;font-size:12px;c
             <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
             <div class="review-text">"Finally a platform that connects macro data to actual trade ideas. The bias scoring on NASDAQ is incredibly useful for timing entries."</div>
             <div class="review-author">
-                <div class="review-avatar" style="background:linear-gradient(135deg,#f97316,#fbbf24)">M</div>
+                <div class="review-avatar" style="background:linear-gradient(135deg,#a855f7,#fbbf24)">M</div>
                 <div><div class="review-name">Marcus T.</div><div class="review-role">Swing Trader — New York</div></div>
             </div>
         </div>
